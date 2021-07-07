@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>CHEER [PROTOTYPE]</title>
+
+  <link rel="stylesheet" href="lib/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+  <link rel="stylesheet" href="lib/MarkerCluster.Default.css"/>
+
+  <style type="text/css">
+    content {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      margin-left: 0px;
+      margin-right: 0px;
+      height: 1000px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+    }
+    #mapid { 
+      display: inline-block;
+      flex-grow: 1;
+
+    }
+    #layers { 
+      display: inline-block;
+      flex: 0 200px;
+      padding: 5px;
+    }
+  </style>
+
+</head>
+<body>
+  <content>
+    <div id="layers">
+      
+      <div>
+        <input id="Farms"  class="layer_toggle" type="checkbox" name="Farms" autocomplete="off" data-layer="AMS-USDA-Directories-Farms.csv"/>
+        <label for="Farms">Farms</label>
+      </div>
+      <div>
+        <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv"/>
+        <label for="FarmMarkets">Farmers Markets</label>
+      </div>
+    </div>
+    <div id="mapid"/>
+  </div>
+
+</body>
+
+<script src="lib/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+<script src="lib/jquery-3.6.0.min.js"></script>
+<script src="lib/leaflet.markercluster.js"></script>
+
+<script type="text/javascript">
+  var theMap = L.map('mapid').setView([43.016844, -78.741447], 12);
+  
+  // var tiles = "https://odin.cse.buffalo.edu/public_data/2021-osm-new-york/{id}/{z}/png/{x}/{y}.png"
+  var tiles = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
+  L.tileLayer(tiles, {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+      id: 'tiles-12/default',
+      tileSize: 256,
+      zoomOffset: 0,
+  }).addTo(theMap);
+
+  let cachedMarkers = {}
+
+  function showLayer(layer){
+    if(cachedMarkers[layer] != undefined) {
+      cachedMarkers[layer].addTo(theMap)
+    } else {
+      $.getJSON("Layers/"+layer, function( data ) {
+        
+        var markers = L.markerClusterGroup();
+        cachedMarkers[layer] = markers
+
+        for(point in data){
+          L.geoJSON(
+              data[point]
+          ).addTo(markers)
+        }
+
+        markers.bindPopup(function(element){
+          return element.feature.properties.popup
+        }).bindTooltip(function(element){
+          return element.feature.properties.tooltip
+        })
+
+        markers.addTo(theMap)
+      }) 
+    }
+  }
+
+  function hideLayer(layer){
+    if(cachedMarkers[layer] != undefined) {
+      theMap.removeLayer(cachedMarkers[layer])
+    }    
+  }
+
+  function userRequestedLayerToggle(event) {
+    let layer = event.target.attributes["data-layer"].value
+    if(event.target.checked){
+      showLayer(layer)
+    } else {
+      hideLayer(layer)
+    }
+  }
+
+  $(".layer_toggle").change(userRequestedLayerToggle)
+
+</script>
+</html>
