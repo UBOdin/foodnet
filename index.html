@@ -63,16 +63,17 @@
 <script type="text/javascript">
   var theMap = L.map('mapid').setView([43.016844, -78.741447], 12);
   
-  // var tiles = "https://odin.cse.buffalo.edu/public_data/2021-osm-new-york/{id}/{z}/png/{x}/{y}.png"
-  var tiles = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-
-  L.tileLayer(tiles, {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 18,
-      id: 'tiles-12/default',
-      tileSize: 256,
-      zoomOffset: 0,
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16
   }).addTo(theMap);
+  // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  //     maxZoom: 18,
+  //     id: 'tiles-12/default',
+  //     tileSize: 256,
+  //     zoomOffset: 0,
+  // }).addTo(theMap);
 
   let cachedMarkers = {}
 
