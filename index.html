@@ -48,6 +48,10 @@
         <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv"/>
         <label for="FarmMarkets">Farmers Markets</label>
       </div>
+      <div>
+        <input id="AgDistricts" class="layer_toggle" type="checkbox" name="AgDistricts" autocomplete="off" data-layer="CUGIR-WNY-AgDistricts.json"/>
+        <label for="AgDistricts">Agricultural Districts</label>
+      </div>
     </div>
     <div id="mapid"/>
   </div>
@@ -83,7 +87,8 @@
     } else {
       $.getJSON("Layers/"+layer, function( data ) {
         
-        var markers = L.markerClusterGroup();
+        // var markers = L.markerClusterGroup();
+        var markers = L.featureGroup();
         cachedMarkers[layer] = markers
 
         for(point in data){
