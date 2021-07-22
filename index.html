@@ -35,6 +35,11 @@
       padding: 10px;
       vertical-align: top;
     }
+    .icon-image {
+      padding: 2px;
+      border-radius: 10px;
+      border: 1px solid black;
+    }
   </style>
 
 </head>
@@ -43,17 +48,17 @@
     <div id="layers">
       
        <div>
-        <input id="Farms" class="layer_toggle" type="checkbox" name="Farms" autocomplete="off" data-layer="AMS-USDA-Directories-Farms.csv"/>
+        <input id="Farms" class="layer_toggle" type="checkbox" name="Farms" autocomplete="off" data-layer="AMS-USDA-Directories-Farms.csv" checked />
         <label for="Farms">Farms with Stores</label>
       </div>
       
        <div>
-        <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv"/>
+        <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv" checked />
         <label for="FarmMarkets">Farmers Markets</label>
       </div>
       
        <div>
-        <input id="AgDistricts" class="layer_toggle" type="checkbox" name="AgDistricts" autocomplete="off" data-layer="CUGIR-WNY-AgDistricts.json"/>
+        <input id="AgDistricts" class="layer_toggle" type="checkbox" name="AgDistricts" autocomplete="off" data-layer="CUGIR-WNY-AgDistricts.json" />
         <label for="AgDistricts">Ag Districts</label>
       </div>
       
@@ -82,17 +87,25 @@
   let cachedMarkers = {}
   let cachedIcons = {}
 
-  function getIcon(label){
+  function getIcon(label, color){
+    console.log("Getting Icon for "+label)
     if(label == undefined || label == null) {
       return L.Icon.Default
     } else {
       if(cachedIcons[label] == undefined){
         cachedIcons[label] = L.icon({
-                              iconUrl: "graphics/icons/"+label+".png",
-                              iconSize: [32, 32],
-                              iconAnchor: [16, 16],
-                              popupAnchor: [16, 16]
+                              iconUrl: "graphics/icons/"+label+".svg",
+                              iconSize: [24, 24],
+                              iconAnchor: [12, 12],
+                              popupAnchor: [0, -12],
+                              // shadowUrl: 'graphics/circle-white.png',
+                              // shadowSize: [24, 24],
+                              // shadowAnchor: [12, 12],
+                              className: "icon-image icon-image-"+label
                             })
+        if(color){
+          document.styleSheets[0].insertRule(".icon-image-"+label+" { background-color: "+color+" }", 0)
+        }
       }
       return cachedIcons[label]
     }
@@ -104,16 +117,19 @@
     } else {
       $.getJSON("Layers/"+layer, function( data ) {
         
-        // var markers = L.markerClusterGroup();
-        var markers = L.featureGroup();
+        var markers = L.markerClusterGroup({
+          maxClusterRadius: 30
+        });
+        // var markers = L.featureGroup();
         cachedMarkers[layer] = markers
 
-        console.log("HI!" + layer)
         for(point in data){
           L.geoJSON(
               data[point],
               { pointToLayer: function(feature, latLng){
-                  return L.marker(latLng, { icon: getIcon(feature.properties.icon) })
+                  return L.marker(latLng, { 
+                    icon: getIcon(feature.properties.icon, feature.properties.icon_color)
+                  })
                 }
               }
           ).addTo(markers)
@@ -146,6 +162,11 @@
   }
 
   $(".layer_toggle").change(userRequestedLayerToggle)
+  
+  showLayer("AMS-USDA-Directories-Farms.csv")
+  
+  showLayer("AMS-USDA-Directories-FarmersMarkets.csv")
+  
 
 </script>
 </html>
