@@ -80,6 +80,23 @@
   
 
   let cachedMarkers = {}
+  let cachedIcons = {}
+
+  function getIcon(label){
+    if(label == undefined || label == null) {
+      return L.Icon.Default
+    } else {
+      if(cachedIcons[label] == undefined){
+        cachedIcons[label] = L.icon({
+                              iconUrl: "graphics/icons/"+label+".png",
+                              iconSize: [32, 32],
+                              iconAnchor: [16, 16],
+                              popupAnchor: [16, 16]
+                            })
+      }
+      return cachedIcons[label]
+    }
+  }
 
   function showLayer(layer){
     if(cachedMarkers[layer] != undefined) {
@@ -91,9 +108,14 @@
         var markers = L.featureGroup();
         cachedMarkers[layer] = markers
 
+        console.log("HI!" + layer)
         for(point in data){
           L.geoJSON(
-              data[point]
+              data[point],
+              { pointToLayer: function(feature, latLng){
+                  return L.marker(latLng, { icon: getIcon(feature.properties.icon) })
+                }
+              }
           ).addTo(markers)
         }
 
