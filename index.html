@@ -37,7 +37,7 @@
     }
     .icon-image {
       padding: 2px;
-      border-radius: 10px;
+      border-radius: 20px;
       border: 1px solid black;
     }
   </style>
@@ -159,6 +159,17 @@
     } else {
       hideLayer(layer)
     }
+  }
+
+  function feedbackForRecord(recordId) {
+    let feedbackURL = "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=pp_url&entry.1693464332=__other_option__&entry.1693464332.other_option_response="+encodeURIComponent("RECORD;"+recordId)
+    console.log("Providing feedback for ["+recordId+"] by redirecting to "+feedbackURL)
+    window.open(feedbackURL)
+  }
+
+  function genericFeedback() {
+    let feedbackURL = "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=sf_link"
+    window.open(feedbackURL)
   }
 
   $(".layer_toggle").change(userRequestedLayerToggle)
