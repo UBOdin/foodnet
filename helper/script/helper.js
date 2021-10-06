@@ -118,6 +118,9 @@ function countVisibleMarkers(map) {
     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
   countDiv.style.display = "block";
 
+  var loadingDiv = document.getElementById("squareFtCountLoading");
+  loadingDiv.style.display = "none";
+
   return markerCount;
 }
 
@@ -173,7 +176,6 @@ function showLayer(layer) {
       for (point in data) {
         L.geoJSON(data[point], {
           pointToLayer: function (feature, latLng) {
-            console.log(feature);
             return L.marker(latLng, {
               icon: getIcon(
                 feature.properties.icon.mdi,
