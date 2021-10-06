@@ -11,15 +11,16 @@
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin=""
     />
+
     <link rel="stylesheet" href="lib/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="lib/css/helper.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="helper/css/helper.css" />
+    <script src="lib/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="lib/bootstrap.min.css" />
+
+    <script src="lib/popper.min.js"></script>
+
+    <script src="lib/bootstrap.min.js"></script>
   </head>
   <body>
     <div style="height: 100%; background: rgb(225, 236, 239)">
@@ -81,9 +82,22 @@
                       width: 50%;
                       border: unset !important ;
                       border-left: 3px solid #0079c1 !important;
+                      padding: unset !important;
                     "
                   >
-                    Square feet Data
+                    <div id="grid-container" class="grid-container">
+                      <div class="grid-row" style="font-weight: 600">
+                        The current map extent below has
+                      </div>
+                      <div
+                        id="square-feet-div"
+                        class="grid-row"
+                        style="font-weight: bold; font-size: larger"
+                      ></div>
+                      <div class="grid-row" style="font-weight: 600">
+                        food retail and distribution locations
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="popOver">
@@ -111,290 +125,5 @@
   ></script>
   <script src="lib/jquery-3.6.0.min.js"></script>
   <script src="lib/leaflet.markercluster.js"></script>
-  <script type="text/javascript">
-    var $j = jQuery.noConflict();
-    $(".selectLayer").popover({
-      container: "body",
-      html: true,
-      placement: "right",
-      sanitize: false,
-      content: `<div >
-            <div id="Layers">
-              <div>
-                              <input id="Farms" class="layer_toggle" type="checkbox" name="Farms" onclick="javascript:userRequestedLayerToggle(this)" autocomplete="off" data-layer="AMS-USDA-Directories-Farms.csv" checked />
-                              <label for="Farms">Farms with Stores</label>
-                           </div>
-                           <div>
-                              <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" onclick="javascript:userRequestedLayerToggle(this)" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv" checked />
-                              <label for="FarmMarkets">Farmers Markets</label>
-                           </div>
-                           <div>
-                              <input id="AgDistricts" class="layer_toggle" type="checkbox" name="AgDistricts" autocomplete="off" data-layer="CUGIR-WNY-AgDistricts.json" />
-                              <label for="AgDistricts">Ag Districts</label>
-                           </div>
-                           <hr/>
-                           <div style="text-align: center;">
-                              <button type="button" class= "submitButton" onclick="javascript:genericFeedback()">Provide Feedback</button>
-                           </div>
-            </div>
-          </div>`,
-      title: "Select Layer",
-    });
-
-    var theMap = L.map("mapid").setView([43.016844, -78.741447], 11);
-
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
-        maxZoom: 16,
-      }
-    ).addTo(theMap);
-
-    let cachedMarkers = {};
-    let cachedIcons = {};
-
-    // theMap.on('zoomend', function onDragEnd(){
-    //   var width = theMap.getBounds().getEast() - theMap.getBounds().getWest();
-    //   var height = theMap.getBounds().getNorth() - theMap.getBounds().getSouth();
-
-    //   alert (
-    //       'center:' + theMap.getCenter() +'\n'+
-    //       'width:' + width +'\n'+
-    //       'height:' + height +'\n'+
-    //       'size in pixels:' + theMap.getSize()
-    //   )});
-
-    theMap.on("moveend", function onDragEnd() {
-      var width = theMap.getBounds().getEast() - theMap.getBounds().getWest();
-      var height =
-        theMap.getBounds().getNorth() - theMap.getBounds().getSouth();
-
-      // alert (
-      //     'center:' + theMap.getCenter() +'\n'+
-      //     'width:' + width +'\n'+
-      //     'height:' + height +'\n'+
-      //     'size in pixels:' + theMap.getSize()
-      // )
-    });
-
-    var markerList = [];
-    theMap.eachLayer(function (layer) {
-      if (
-        layer instanceof L.Marker &&
-        theMap.getBounds().contains(layer.getLatLng())
-      ) {
-        markerList.push(layer);
-      }
-    });
-
-    var coverages = new L.LayerGroup();
-
-    // theMap.on("zoomend", function() {
-    //   // Here getting clusters randomly, but you can decide which one you want to show coverage of.
-
-    // //alert()
-    // coverages.clearLayers();
-
-    // theMap.eachLayer(function(layer) {
-    //     if (layer instanceof L.MarkerCluster && layer.getChildCount() > 2) {
-    //       theMap._showCoverage( layer );
-    //       console.log(layer)
-    //       //coverages.addLayer(L.polygon(layer.getConvexHull()));
-
-    //     }
-    //     coverages.addTo(theMap);
-    //   });
-    // });
-
-    function countVisibleMarkers(map) {
-      var markerCount = 0;
-
-      map.eachLayer(function (layer) {
-        if (
-          layer instanceof L.Marker &&
-          map.getBounds().contains(layer.getLatLng())
-        ) {
-          if (layer.hasOwnProperty("_childClusters")) {
-            markerCount += layer.getAllChildMarkers().length;
-          } else {
-            markerCount++;
-          }
-        }
-      });
-
-      var loadingDiv = document.getElementById("countLoading");
-      loadingDiv.style.display = "none";
-
-      var countDiv = document.getElementById("count-div");
-      countDiv.innerText = markerCount;
-      countDiv.style.display = "block";
-
-      return markerCount;
-    }
-
-    theMap.on("zoomend", () => {
-      var markersCount = countVisibleMarkers(theMap);
-
-      console.log("Visible" + markersCount);
-
-      //   var clusterCount = 0;
-
-      //   let clusters = [];
-      //   let countArray = [];
-
-      //   //console.log(theMap.getBounds());
-      //   var count = 0;
-      //   theMap.eachLayer((l) => {
-      //     if (l instanceof L.Marker && theMap.getBounds().contains(l.getLatLng())) {
-      //       if (l.hasOwnProperty("_childClusters") && l._childClusters.length >0) {
-      //         clusters.push(l);
-
-      //         //console.log("Cluster"+ l._childCount)
-      //         //console.log(l);
-      //         // if(l._childClusters)
-      //         // console.log(l._childCount);
-
-      //         var childNodes= l.getAllChildMarkers();
-      //        console.log(childNodes);
-
-      //   for(var i in childNodes){
-
-      //   if(childNodes[i].__parent._childClusters.length ==0){
-
-      //   //console.log(childNodes[i].getElement())
-      //   }
-      //   }
-      //        // console.log("-----");
-      //         countArray.push(count);
-      //         count++;
-      //         clusterCount++;
-      //       }
-      //     }
-      //   });
-
-      //  // console.log("Done here")
-      //   //console.log(countArray);
-      // console.log(clusters);
-      // console.log("Total clusters "  );
-      // console.table(L.markerClusterGroup())
-      // do something with clusters such as cluster[0].spiderfy()
-    });
-
-    function getIcon(label, color) {
-      //console.log("Getting Icon for " + label);
-      if (label == undefined || label == null) {
-        return L.Icon.Default;
-      } else {
-        if (cachedIcons[label] == undefined) {
-          cachedIcons[label] = L.icon({
-            iconUrl: "graphics/icons/" + label + ".svg",
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12],
-            // shadowUrl: 'graphics/circle-white.png',
-            // shadowSize: [24, 24],
-            // shadowAnchor: [12, 12],
-            className: "icon-image icon-image-" + label,
-          });
-          if (color) {
-            document.styleSheets[0].insertRule(
-              ".icon-image-" + label + " { background-color: " + color + " }",
-              0
-            );
-          }
-        }
-        return cachedIcons[label];
-      }
-    }
-
-    function showLayer(layer) {
-      //console.log(layer)
-      // iterate over cachedMarkers that are
-      // maintain a seperate list if retail or not
-      if (cachedMarkers[layer] != undefined) {
-        cachedMarkers[layer].addTo(theMap);
-      } else {
-        $.getJSON("Layers/" + layer, function (data) {
-          var markers = L.markerClusterGroup({
-            maxClusterRadius: 30,
-            showCoverageOnHover: false,
-          });
-          // var markers = L.featureGroup();
-          cachedMarkers[layer] = markers;
-          // console.log(data)
-          for (point in data) {
-            //console.log(data[point])
-            L.geoJSON(data[point], {
-              pointToLayer: function (feature, latLng) {
-                //console.log(feature)
-                return L.marker(latLng, {
-                  icon: getIcon(
-                    feature.properties.icon,
-                    feature.properties.icon_color
-                  ),
-                });
-              },
-            }).addTo(markers);
-          }
-
-          markers
-            .bindPopup(function (element) {
-              // console.log(element)
-              return element.feature.properties.popup;
-            })
-            .bindTooltip(function (element) {
-              return element.feature.properties.tooltip;
-            });
-
-          markers.addTo(theMap);
-          countVisibleMarkers(theMap);
-        });
-      }
-    }
-
-    function hideLayer(layer) {
-      if (cachedMarkers[layer] != undefined) {
-        theMap.removeLayer(cachedMarkers[layer]);
-      }
-    }
-
-    function userRequestedLayerToggle(event) {
-      let layer = event.attributes["data-layer"].value;
-
-      if (event.checked) {
-        showLayer(layer);
-        event.checked = true;
-      } else {
-        hideLayer(layer);
-        event.checked = false;
-      }
-      countVisibleMarkers(theMap);
-    }
-
-    function feedbackForRecord(recordId) {
-      let feedbackURL =
-        "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=pp_url&entry.1693464332=__other_option__&entry.1693464332.other_option_response=" +
-        encodeURIComponent("RECORD;" + recordId);
-      console.log(
-        "Providing feedback for [" +
-          recordId +
-          "] by redirecting to " +
-          feedbackURL
-      );
-      window.open(feedbackURL);
-    }
-
-    function genericFeedback() {
-      let feedbackURL =
-        "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=sf_link";
-      window.open(feedbackURL);
-    }
-
-    // $(".layer_toggle").change(userRequestedLayerToggle);
-
-    showLayer("AMS-USDA-Directories-Farms.csv");
-
-    showLayer("AMS-USDA-Directories-FarmersMarkets.csv");
-  </script>
+  <script type="text/javascript" src="helper/script/helper.js"></script>
 </html>
