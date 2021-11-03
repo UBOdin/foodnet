@@ -11,15 +11,10 @@
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin=""
     />
-
     <link rel="stylesheet" href="lib/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="helper/css/helper.css" />
-    <script src="lib/jquery-3.6.0.min.js"></script>
-
     <link rel="stylesheet" href="lib/bootstrap.min.css" />
-
     <script src="lib/popper.min.js"></script>
-
     <script src="lib/bootstrap.min.js"></script>
   </head>
   <body>
@@ -36,7 +31,59 @@
         Food Retailing and Distribution
       </div>
       <div class="bottom-div">
-        <div class="left">1</div>
+        <div class="left">
+          <div id="filter-div">
+            <div style="font-size: medium; text-align: left; font-weight: 400">
+              Select Layers
+            </div>
+            <hr style="margin-top: 3px; margin-bottom: 3px" />
+          </div>
+          <br />
+          <div id="cash-filter-heading">
+            <div style="font-size: medium; text-align: left; font-weight: 400">
+              Cash Type
+              <div id="cash-filter">
+                <hr style="margin-top: 3px; margin-bottom: 3px" />
+              </div>
+              <br />
+              <div class="form-check" id="noCashDiv" style="display: none">
+                <input
+                  class="form-check-input"
+                  name="paymentFilter"
+                  type="checkbox"
+                  value=""
+                  onclick="userRequestedFilter(this)"
+                  id="na"
+                />
+                <label class="form-check-label" for="NoCash">
+                  Include No Cash Type
+                </label>
+              </div>
+            </div>
+          </div>
+          <br />
+          <div id="date-filter-heading">
+            <div style="font-size: medium; text-align: left; font-weight: 400">
+              Availability
+              <div id="availability-filter">
+                <hr style="margin-top: 3px; margin-bottom: 3px" />
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  name="dateFilter"
+                  type="checkbox"
+                  value="false"
+                  onclick="filterOpenToday(this)"
+                  id="openToday"
+                />
+                <label class="form-check-label" for="openToday">
+                  Is in season
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="main">
           <div style="width: 100%; height: 100%">
             <content>
@@ -106,15 +153,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="popOver">
-                  <a
-                    class="selectLayer"
-                    href="#"
-                    title="Select Layer"
-                    data-toggle="popover"
-                    >Select layer</a
-                  >
-                </div>
+
                 <div id="mapid" />
               </div>
             </content>
@@ -132,4 +171,5 @@
   <script src="lib/jquery-3.6.0.min.js"></script>
   <script src="lib/leaflet.markercluster.js"></script>
   <script type="text/javascript" src="helper/script/helper.js"></script>
+  <script src="lib/plugins/leaflet.ajax.min.js"></script>
 </html>

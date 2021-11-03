@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>CHEER [PROTOTYPE]</title>
+
+  <link rel="stylesheet" href="lib/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+  <link rel="stylesheet" href="lib/MarkerCluster.Default.css"/>
+
+  <style type="text/css">
+    html, body {
+      height: 100%;
+      padding: 0px;
+      margin: 0px;
+    }
+    content {
+      height: calc(100% - 20px);
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+    }
+    #mapid { 
+      display: inline-block;
+      flex-grow: 1;
+      height: 100%;
+      padding: 5px;
+    }
+    #layers { 
+      display: inline-block;
+      flex: 0 200px;
+      padding: 10px;
+      vertical-align: top;
+    }
+    .icon-image {
+      padding: 2px;
+      border-radius: 20px;
+      border: 1px solid black;
+    }
+  </style>
+
+</head>
+<body>
+  <content>
+    <div id="layers">
+      
+       <div>
+        <input id="Farms" class="layer_toggle" type="checkbox" name="Farms" autocomplete="off" data-layer="AMS-USDA-Directories-Farms.csv" checked />
+        <label for="Farms">Farms with Stores</label>
+      </div>
+      
+       <div>
+        <input id="FarmMarkets" class="layer_toggle" type="checkbox" name="FarmMarkets" autocomplete="off" data-layer="AMS-USDA-Directories-FarmersMarkets.csv" checked />
+        <label for="FarmMarkets">Farmers Markets</label>
+      </div>
+      
+       <div>
+        <input id="AgDistricts" class="layer_toggle" type="checkbox" name="AgDistricts" autocomplete="off" data-layer="CUGIR-WNY-AgDistricts.json" />
+        <label for="AgDistricts">Ag Districts</label>
+      </div>
+      
+      <hr/>
+      <div style="text-align: center;">
+        <button type="button" onclick="javascript:genericFeedback()">Provide Feedback</button>
+      </div>
+    </div>
+    <div id="mapid"/>
+  </div>
+
+</body>
+
+<script src="lib/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+<script src="lib/jquery-3.6.0.min.js"></script>
+<script src="lib/leaflet.markercluster.js"></script>
+
+<script type="text/javascript">
+  var theMap = L.map('mapid').setView([43.016844, -78.741447], 12);
+  
+  
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16
+  }).addTo(theMap);
+  
+
+  let cachedMarkers = {}
+  let cachedIcons = {}
+
+
+  theMap.on('dragend', function onDragEnd(){
+    var width = map.getBounds().getEast() - map.getBounds().getWest();
+    var height = map.getBounds().getNorth() - map.getBounds().getSouth();
+
+    alert (
+        'center:' + map.getCenter() +'\n'+
+        'width:' + width +'\n'+
+        'height:' + height +'\n'+
+        'size in pixels:' + map.getSize()
+    )});
+
+  function getIcon(label, color){
+    console.log("Getting Icon for "+label)
+    if(label == undefined || label == null) {
+      return L.Icon.Default
+    } else {
+      if(cachedIcons[label] == undefined){
+        cachedIcons[label] = L.icon({
+                              iconUrl: "graphics/icons/"+label+".svg",
+                              iconSize: [24, 24],
+                              iconAnchor: [12, 12],
+                              popupAnchor: [0, -12],
+                              // shadowUrl: 'graphics/circle-white.png',
+                              // shadowSize: [24, 24],
+                              // shadowAnchor: [12, 12],
+                              className: "icon-image icon-image-"+label
+                            })
+        if(color){
+          document.styleSheets[0].insertRule(".icon-image-"+label+" { background-color: "+color+" }", 0)
+        }
+      }
+      return cachedIcons[label]
+    }
+  }
+
+  function showLayer(layer){
+    if(cachedMarkers[layer] != undefined) {
+      cachedMarkers[layer].addTo(theMap)
+    } else {
+      $.getJSON("Layers/"+layer, function( data ) {
+        
+        var markers = L.markerClusterGroup({
+          maxClusterRadius: 30
+        });
+        // var markers = L.featureGroup();
+        cachedMarkers[layer] = markers
+
+        for(point in data){
+          L.geoJSON(
+              data[point],
+              { pointToLayer: function(feature, latLng){
+                  return L.marker(latLng, { 
+                    icon: getIcon(feature.properties.icon, feature.properties.icon_color)
+                  })
+                }
+              }
+          ).addTo(markers)
+        }
+
+        markers.bindPopup(function(element){
+          return element.feature.properties.popup
+        }).bindTooltip(function(element){
+          return element.feature.properties.tooltip
+        })
+
+        markers.addTo(theMap)
+      }) 
+    }
+  }
+
+  function hideLayer(layer){
+    if(cachedMarkers[layer] != undefined) {
+      theMap.removeLayer(cachedMarkers[layer])
+    }    
+  }
+
+  function userRequestedLayerToggle(event) {
+    let layer = event.target.attributes["data-layer"].value
+    if(event.target.checked){
+      showLayer(layer)
+    } else {
+      hideLayer(layer)
+    }
+  }
+
+  function feedbackForRecord(recordId) {
+    let feedbackURL = "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=pp_url&entry.1693464332=__other_option__&entry.1693464332.other_option_response="+encodeURIComponent("RECORD;"+recordId)
+    console.log("Providing feedback for ["+recordId+"] by redirecting to "+feedbackURL)
+    window.open(feedbackURL)
+  }
+
+  function genericFeedback() {
+    let feedbackURL = "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=sf_link"
+    window.open(feedbackURL)
+  }
+
+  $(".layer_toggle").change(userRequestedLayerToggle)
+  
+  showLayer("AMS-USDA-Directories-Farms.csv")
+  
+  showLayer("AMS-USDA-Directories-FarmersMarkets.csv")
+  
+
+</script>
+</html>
