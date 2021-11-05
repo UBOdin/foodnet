@@ -1,3 +1,5 @@
+// let referenceJson = JSON.parse(reference);
+//console.log(reference);
 var theMap = L.map("mapid").setView([43.016844, -78.741447], 11);
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -9,8 +11,9 @@ L.tileLayer(
 
 // remove and add in reference file
 
+let indexReference = [];
 let cachedMarkers = {};
-let cachedCluster = {};
+//let cachedCluster = {};
 let cachedIcons = {};
 let lyrMarkerCluster;
 let lyrMarkers = [];
@@ -19,11 +22,6 @@ let paymentOption = [];
 lyrMarkerCluster = L.markerClusterGroup();
 
 let isOpenTodayCondition = false;
-
-theMap.on("zoomstart", function onDragEnd() {
-  console.log(theMap.getBounds());
-  // countVisibleMarkers(theMap);
-});
 
 var markerList = [];
 theMap.eachLayer(function (layer) {
@@ -55,6 +53,7 @@ function countVisibleMarkers(map) {
       }
     }
   });
+
   var loadingDiv = document.getElementById("countLoading");
   loadingDiv.style.display = "none";
 
@@ -76,13 +75,7 @@ function countVisibleMarkers(map) {
 }
 
 theMap.on("zoomend", () => {
-  //console.log(layerInfo);
-
-  console.log(theMap.getBounds());
-
-  var markersCount = countVisibleMarkers(theMap);
-
-  console.log("Visible" + markersCount);
+  countVisibleMarkers(theMap);
 });
 
 function filterMarkers(json) {
@@ -103,7 +96,6 @@ function filterMarkers(json) {
         (element.payment == null || element.payment.length == 0) &&
         paymentOption.includes("na")
       ) {
-        console.log("null");
         elementvalid = true;
         break;
       }
@@ -112,7 +104,6 @@ function filterMarkers(json) {
 
   let isOpenToday = false;
   if (isOpenTodayCondition) {
-    //console.log(element.seasonal)
     let fromDate,
       toDate,
       today = new Date();
@@ -133,7 +124,6 @@ function filterMarkers(json) {
     });
   } else isOpenToday = true;
 
-  //console.log(elementvalid)
   return elementvalid && isOpenToday;
 }
 
@@ -150,16 +140,8 @@ function returnMarker(json, latlng) {
 }
 
 function showLayer(layer) {
-  //console.log(layer);
-  // iterate over cachedMarkers that are
-  // maintain a seperate list if retail or not
-
-  // console.log(lyrMarkerCluster)
   if (cachedMarkers.hasOwnProperty(layer)) {
-    //lyrMarkerCluster = L.markerClusterGroup();
     lyrMarkerCluster.addLayer(cachedMarkers[layer]);
-    //lyrMarkerCluster.addTo(theMap);
-    //cachedMarkers[layer].addTo(theMap);
   } else {
     let layerInfo = L.geoJSON.ajax("Layers/json-files/" + layer, {
       pointToLayer: returnMarker,
@@ -167,9 +149,6 @@ function showLayer(layer) {
     });
 
     layerInfo.on("data:loaded", function (element) {
-      if (paymentOption.length > 0) {
-        //  lyrMarkerCluster.clearLayers();
-      }
       if (paymentOption.length == 0) lyrMarkers.push(layerInfo);
 
       lyrMarkerCluster.addLayer(layerInfo);
@@ -178,10 +157,7 @@ function showLayer(layer) {
       lyrMarkerCluster.addTo(theMap);
       countVisibleMarkers(theMap);
     });
-
-    cachedCluster[layer] = lyrMarkerCluster;
   }
-  // console.log(cachedCluster);
 }
 
 function generatePopUp(properties) {
@@ -267,19 +243,12 @@ function generateDateString(properties) {
 }
 
 function hideLayer(layer) {
-  console.log(cachedMarkers[layer]);
-  //theMap.clearLayers()
-  console.log(layer);
-
   if (cachedMarkers[layer] != undefined) {
     lyrMarkerCluster.removeLayer(cachedMarkers[layer]);
-    //lyrMarkerCluster.clearLayers()
-    //cachedMarkers[layer].remove()
   }
 }
 
 function removeMarkerPaymentSearch(map, marker, props, cashType) {
-  //console.log(props.payment)
   if (
     !props.hasOwnProperty("payment") ||
     props.payment == null ||
@@ -290,63 +259,69 @@ function removeMarkerPaymentSearch(map, marker, props, cashType) {
 }
 
 function userRequestedFilter(event) {
-  console.log("---");
-  console.log(event);
-  console.log(paymentOption);
-
   if ((event.name = "paymentFilter")) {
     if (paymentOption.includes(event.id)) {
       paymentOption.splice(paymentOption.indexOf(event.id), 1);
+
+      if (paymentOption.length == 1 && paymentOption[0] == "na") {
+        document.getElementById("na").checked = false;
+        refreshMap();
+        //return;
+      }
       lyrMarkerCluster.clearLayers();
       if (paymentOption.length == 0) {
         cachedMarkers = {};
-        cachedCluster = {};
         cachedIcons = {};
-        lyrMarkerCluster;
         lyrMarkers = [];
         filterConditions = [];
-        reloadMap("reloadMap");
+
+        indexReference.forEach(function (layer) {
+          if (layer.isChecked) {
+            showLayer(layer.fileName);
+          } else {
+            document.getElementById(layer.id).checked = false;
+          }
+        });
       } else
         for (var i in lyrMarkers) {
           lyrMarkers[i].refresh();
         }
     } else {
-      filterConditions.push("payment");
-      paymentOption = [];
-
-      $("input[name=paymentFilter]").each(function () {
-        // console.log(this.checked)
-        if (this.checked) {
-          paymentOption.push(this.id);
-        }
-      });
-
-      if (paymentOption.length > 0) {
-        console.log(lyrMarkerCluster.getLayers());
-
-        lyrMarkerCluster.clearLayers();
-        lyrMarkers.forEach((element) => {
-          element.refresh();
-        });
-      }
+      refreshMap();
     }
-    console.log("end");
-    if (paymentOption.length > 0) {
-      var noCashDiv = document.getElementById("noCashDiv");
-      noCashDiv.style.display = "block";
-    } else {
+
+    if (
+      paymentOption.length == 0 ||
+      (paymentOption.length <= 1 && paymentOption.includes("na"))
+    ) {
+      document.getElementById("na").checked = false;
       var noCashDiv = document.getElementById("noCashDiv");
       noCashDiv.style.display = "none";
+    } else {
+      var noCashDiv = document.getElementById("noCashDiv");
+      noCashDiv.style.display = "block";
     }
-
-    console.log(paymentOption);
   }
 }
 
-function filterOpenToday(event) {
-  console.log(event);
+function refreshMap() {
+  filterConditions.push("payment");
+  paymentOption = [];
 
-  console.log(document.getElementById("openToday").checked);
+  $("input[name=paymentFilter]").each(function () {
+    if (this.checked) {
+      paymentOption.push(this.id);
+    }
+  });
+
+  if (paymentOption.length > 0) {
+    lyrMarkerCluster.clearLayers();
+    lyrMarkers.forEach((element) => {
+      element.refresh();
+    });
+  }
+}
+function filterOpenToday(event) {
   if ((event.name = "dateFilter")) {
     isOpenTodayCondition = document.getElementById("openToday").checked;
 
@@ -358,7 +333,6 @@ function filterOpenToday(event) {
 }
 
 function userRequestedLayerToggle(event) {
-  console.log(event);
   let layer = event.attributes["data-layer"].value;
 
   if (event.checked) {
@@ -388,62 +362,58 @@ function genericFeedback() {
   window.open(feedbackURL);
 }
 
-//     $(".layer_toggle").change(userRequestedLayerToggle);
 // check and remove reloadValue
-function reloadMap(reloadValue) {
+function reloadMap() {
   fetch("reference.json")
     .then((response) => response.json())
     .then((layers) => {
-      if (reloadValue != "reloadMap") {
-        var filterDiv = document.createElement("div");
-        filterDiv.id = "filter";
-        filterDiv.className = "filter";
-      }
-      layers.layersIndex.forEach(function (layer) {
-        if (reloadValue != "reloadMap")
-          document
-            .getElementById("filter-div")
-            .appendChild(filterDiv)
-            .insertAdjacentHTML(
-              "afterbegin",
-              '<div class="form-check"><input type="checkbox" data-layer=' +
-                layer.fileName +
-                ' checked="' +
-                layer.isChecked +
-                '" class="form-check-input filled-in" id="' +
-                layer.id +
-                '" onclick="javascript:userRequestedLayerToggle(this) "><label class="form-check-label small text-uppercase card-link-secondary" for="new">' +
-                layer.layerName +
-                "</label></div>"
-            );
+      var filterDiv = document.createElement("div");
+      filterDiv.id = "filter";
+      filterDiv.className = "filter";
 
+      layers.layersIndex.forEach(function (layer) {
+        indexReference.push(layer);
+
+        document
+          .getElementById("filter-div")
+          .appendChild(filterDiv)
+          .insertAdjacentHTML(
+            "afterbegin",
+            '<div class="form-check"><input type="checkbox" data-layer=' +
+              layer.fileName +
+              ' checked="' +
+              layer.isChecked +
+              '" class="form-check-input filled-in" id="' +
+              layer.id +
+              '" onclick="javascript:userRequestedLayerToggle(this) "><label class="form-check-label small text-uppercase card-link-secondary" for="new">' +
+              layer.layerName +
+              "</label></div>"
+          );
         if (layer.isChecked) {
           showLayer(layer.fileName);
         } else {
           document.getElementById(layer.id).checked = false;
         }
       });
-      if (reloadValue != "reloadMap") {
-        var paymentFilter = document.createElement("div");
-        paymentFilter.id = "paymentFilter";
-        paymentFilter.className = "paymentFilter";
-        document.getElementById("cash-filter").appendChild(paymentFilter);
-      }
+      var paymentFilter = document.createElement("div");
+      paymentFilter.id = "paymentFilter";
+      paymentFilter.className = "paymentFilter";
+      document.getElementById("cash-filter").appendChild(paymentFilter);
+
       //console.log(layers);
       layers.paymentFilter.forEach((element) => {
-        if (reloadValue != "reloadMap")
-          document
-            .getElementById("paymentFilter")
-            .insertAdjacentHTML(
-              "beforeend",
-              '<div class="form-check form-check-inline"><input name="paymentFilter" onclick="javascript:userRequestedFilter(this)" class="form-check-input" type="checkbox" id="' +
-                element.id +
-                '"><label class="form-check-label" for="' +
-                element.id +
-                '">' +
-                element.displayValue +
-                "</label</div>"
-            );
+        document
+          .getElementById("paymentFilter")
+          .insertAdjacentHTML(
+            "beforeend",
+            '<div class="form-check form-check-inline"><input name="paymentFilter" onclick="javascript:userRequestedFilter(this)" class="form-check-input" type="checkbox" id="' +
+              element.id +
+              '"><label class="form-check-label" for="' +
+              element.id +
+              '">' +
+              element.displayValue +
+              "</label</div>"
+          );
       });
     });
 }
@@ -475,4 +445,4 @@ function getIcon(label, color) {
   }
 }
 
-reloadMap("reloadPage");
+reloadMap();

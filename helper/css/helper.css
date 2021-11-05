@@ -48,7 +48,49 @@ div#grid-container {
   margin-left: 50%;
   margin-top: 3%;
 }
-
+.filterLayer {
+  font-size: medium;
+  text-align: left;
+  font-weight: 400;
+}
+.hr-tag {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+.fullSize {
+  height: 100%;
+  width: 100%;
+}
+.top-div-border {
+  border: unset !important ;
+  border-bottom: 3px solid #0079c1 !important;
+}
+.countDiv {
+  width: 50% !important;
+  border: unset !important;
+  padding: 0 !important;
+}
+div#count {
+  border-left: unset !important;
+  border-top: unset !important;
+}
+.font-weight-600 {
+  font-weight: 600;
+}
+.display-none {
+  display: none !important;
+}
+.big-font {
+  font-weight: bold;
+  font-size: larger;
+}
+.squareFtDiv {
+  width: 50% !important;
+  border: unset !important;
+  border-left: 3px solid #0079c1 !important;
+  padding: unset !important;
+  border-bottom: 3px solid #0079c1 !important;
+}
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -91,6 +133,17 @@ div#grid-container {
     border: 3px solid #0079c1 !important;
     height: 8%;
   }
+  .top-div-title {
+    font-size: larger;
+    padding: 2%;
+    text-align: left;
+    font-weight: 400;
+  }
+  .main-div {
+    height: 100%;
+    background: rgb(225, 236, 239);
+  }
+
   div#mapDiv {
     overflow: auto;
     height: 15%;
@@ -130,23 +183,24 @@ div#grid-container {
     text-align: left;
     padding: 2%;
   }
-  div#area {
-    overflow: auto;
-    width: 50%;
-    border: unset !important;
-    float: right;
-    padding: 2% !important;
-    padding-top: 3% !important;
-    height: 100%;
-    text-align: left;
-  }
 }
 @media only screen and (min-width: 480px) {
+  .main-div {
+    height: 100%;
+    background: rgb(225, 236, 239);
+  }
+
   .top-div {
     overflow: auto;
     border: 3px solid #0079c1 !important;
     border-bottom: none !important;
     height: 10%;
+  }
+  .top-div-title {
+    font-size: larger;
+    padding: 2%;
+    text-align: left;
+    font-weight: 400;
   }
   .bottom-div {
     overflow: auto;
@@ -168,7 +222,6 @@ div#grid-container {
     #background-color: #f1f1f1;
     float: left;
     width: 64%;
-    /* The width is 60%, by default */
     border: 3px solid #0079c1 !important;
     height: 100%;
   }
@@ -178,9 +231,11 @@ div#grid-container {
     padding: 20px;
     float: left;
     width: 18%;
-    /* The width is 20%, by default */
-    border: 3px solid #0079c1 !important;
-    border-left: none !important;
+    border: 3px solid #0079c1;
+    border-left: none;
     height: 100%;
+  }
+  div#mapDiv {
+    border: unset !important;
   }
 }
