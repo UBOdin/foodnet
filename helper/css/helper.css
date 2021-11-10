@@ -10,6 +10,10 @@ content {
   flex-direction: row;
   flex-wrap: nowrap;
 }
+svg {
+  position: absolute;
+}
+
 #mapid {
   display: inline-block;
   flex-grow: 1;
