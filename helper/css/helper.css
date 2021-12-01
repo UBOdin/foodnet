@@ -95,6 +95,10 @@ div#count {
   padding: unset !important;
   border-bottom: 3px solid #0079c1 !important;
 }
+#pie-chart {
+  width: 130%;
+  height: auto;
+}
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -242,4 +246,11 @@ div#count {
   div#mapDiv {
     border: unset !important;
   }
+}
+
+div.explore_area {
+  position: relative;
+  width: 400px;
+  height: 300px;
+  overflow: auto;
 }
