@@ -1,5 +1,3 @@
-// let referenceJson = JSON.parse(reference);
-//console.log(reference);
 var theMap = L.map("mapid").setView([43.016844, -78.741447], 11);
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -19,11 +17,21 @@ let lyrMarkerCluster;
 let lyrMarkers = [];
 let filterConditions = [];
 let paymentOption = [];
+
+let totalLayersSelected = 0;
+
+let currentLayerCount = 0;
+
 lyrMarkerCluster = L.markerClusterGroup();
 
 let isOpenTodayCondition = false;
 
 var markerList = [];
+
+let currentLayer = {};
+
+let pieChartData = {};
+
 theMap.eachLayer(function (layer) {
   if (
     layer instanceof L.Marker &&
@@ -36,7 +44,8 @@ theMap.eachLayer(function (layer) {
 function countVisibleMarkers(map) {
   var markerCount = 0;
   var squareFtCount = 0;
-
+  pieChartData = {};
+  let layerName = undefined;
   map.eachLayer(function (layer) {
     if (
       layer instanceof L.Marker &&
@@ -46,8 +55,22 @@ function countVisibleMarkers(map) {
         markerCount += layer.getAllChildMarkers().length;
         layer.getAllChildMarkers().forEach((element) => {
           squareFtCount += parseInt(element.feature.properties.sq_feet);
+          if (
+            pieChartData.hasOwnProperty(element.feature.properties.layerName)
+          ) {
+            pieChartData[element.feature.properties.layerName] =
+              pieChartData[element.feature.properties.layerName] + 1;
+          } else {
+            pieChartData[element.feature.properties.layerName] = 1;
+          }
         });
       } else {
+        if (pieChartData.hasOwnProperty(layer.feature.properties.layerName)) {
+          pieChartData[layer.feature.properties.layerName] =
+            pieChartData[layer.feature.properties.layerName] + 1;
+        } else {
+          pieChartData[layer.feature.properties.layerName] = 1;
+        }
         markerCount++;
         squareFtCount += parseInt(layer.feature.properties.sq_feet);
       }
@@ -71,9 +94,23 @@ function countVisibleMarkers(map) {
   var squareFitDivLoading = document.getElementById("squareFtCountLoading");
   squareFitDivLoading.style.display = "none";
 
+  let tempInfo = pieChartInfo;
+  reloadPieChart(pieChartData, pieChartInfo);
   return markerCount;
 }
+function reloadPieChart(pieChartData, defaultInfo) {
+  defaultInfo.labels = [];
+  defaultInfo.datasets[0].data = [];
+  Object.entries(pieChartData).forEach(([jsonLayerName, jsonCount]) => {
+    defaultInfo.labels.push(
+      jsonLayerName.substring(0, jsonLayerName.indexOf(".json"))
+    );
 
+    defaultInfo.datasets[0].data.push(jsonCount);
+  });
+
+  createPie(defaultInfo);
+}
 theMap.on("zoomend", () => {
   countVisibleMarkers(theMap);
 });
@@ -127,8 +164,10 @@ function filterMarkers(json) {
   return elementvalid && isOpenToday;
 }
 
-function returnMarker(json, latlng) {
+function returnMarker(json, latlng, layer) {
   var element = json.properties;
+
+  element["layerName"] = layer;
 
   return L.marker(latlng, {
     icon: getIcon(element.icon.mdi, element.icon.color),
@@ -142,9 +181,16 @@ function returnMarker(json, latlng) {
 function showLayer(layer) {
   if (cachedMarkers.hasOwnProperty(layer)) {
     lyrMarkerCluster.addLayer(cachedMarkers[layer]);
+    currentLayerCount++;
+    if (totalLayersSelected == currentLayerCount) {
+      countVisibleMarkers(theMap);
+    }
   } else {
+    currentLayer = layer;
     let layerInfo = L.geoJSON.ajax("Layers/json-files/" + layer, {
-      pointToLayer: returnMarker,
+      pointToLayer: function (feature, latlng) {
+        return returnMarker(feature, latlng, layer);
+      },
       filter: filterMarkers,
     });
 
@@ -155,7 +201,10 @@ function showLayer(layer) {
       cachedMarkers[layer] = layerInfo;
 
       lyrMarkerCluster.addTo(theMap);
-      countVisibleMarkers(theMap);
+      currentLayerCount++;
+      if (totalLayersSelected == currentLayerCount) {
+        countVisibleMarkers(theMap);
+      }
     });
   }
 }
@@ -204,7 +253,6 @@ function generatePopUp(properties) {
 }
 
 function generateDateString(properties) {
-  console.log(properties.seasonal);
   var dateString = "";
   properties.seasonal.forEach(function (date) {
     let fromDate, toDate;
@@ -236,7 +284,6 @@ function generateDateString(properties) {
       "</i><br/>";
   });
 
-  console.log(dateString);
   return (
     "<div style='max-height: 60px; overflow:auto'>" + dateString + "</div>"
   );
@@ -244,7 +291,10 @@ function generateDateString(properties) {
 
 function hideLayer(layer) {
   if (cachedMarkers[layer] != undefined) {
+    totalLayersSelected--;
+    currentLayerCount--;
     lyrMarkerCluster.removeLayer(cachedMarkers[layer]);
+    countVisibleMarkers(theMap);
   }
 }
 
@@ -336,17 +386,18 @@ function userRequestedLayerToggle(event) {
   let layer = event.attributes["data-layer"].value;
 
   if (event.checked) {
+    totalLayersSelected++;
     showLayer(layer);
     event.checked = true;
   } else {
     hideLayer(layer);
     event.checked = false;
   }
-  countVisibleMarkers(theMap);
+  //countVisibleMarkers(theMap);
 }
 
 function feedbackForRecord(recordId) {
-  console.log(recordId);
+  //.log(recordId);
   let feedbackURL =
     "https://docs.google.com/forms/d/e/1FAIpQLSdYwjfUK9xM0tjinV4Jj-tzaAg0kQXaMq-AOAD0EfQTSO1Lbw/viewform?usp=pp_url&entry.1693464332=__other_option__&entry.1693464332.other_option_response=" +
     encodeURIComponent("RECORD;" + recordId);
@@ -371,7 +422,10 @@ function reloadMap() {
       filterDiv.id = "filter";
       filterDiv.className = "filter";
 
-      layers.layersIndex.forEach(function (layer) {
+      //layers.layersIndex.forEach(function (layer) {
+
+      for (var index in layers.layersIndex) {
+        let layer = layers.layersIndex[index];
         indexReference.push(layer);
 
         document
@@ -390,17 +444,17 @@ function reloadMap() {
               "</label></div>"
           );
         if (layer.isChecked) {
+          totalLayersSelected++;
           showLayer(layer.fileName);
         } else {
           document.getElementById(layer.id).checked = false;
         }
-      });
+      }
       var paymentFilter = document.createElement("div");
       paymentFilter.id = "paymentFilter";
       paymentFilter.className = "paymentFilter";
       document.getElementById("cash-filter").appendChild(paymentFilter);
 
-      //console.log(layers);
       layers.paymentFilter.forEach((element) => {
         document
           .getElementById("paymentFilter")
@@ -419,7 +473,6 @@ function reloadMap() {
 }
 
 function getIcon(label, color) {
-  //  console.log("Getting Icon for " + label);
   if (label == undefined || label == null) {
     return L.Icon.Default;
   } else {
