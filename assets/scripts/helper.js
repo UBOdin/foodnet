@@ -116,6 +116,10 @@ theMap.on("zoomend", () => {
   countVisibleMarkers(theMap);
 });
 
+theMap.on("dragend", function () {
+  countVisibleMarkers(theMap);
+});
+
 function filterMarkers(json) {
   if (filterConditions.length == 0 && !isOpenTodayCondition) return true;
   var element = json.properties;
