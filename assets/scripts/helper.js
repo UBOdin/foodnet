@@ -505,3 +505,13 @@ function getIcon(label, color) {
 }
 
 reloadMap();
+
+function openNav() {
+  document.getElementById("mySidepanel").style.width = "275px";
+  document.getElementById("main-div").style.filter = "blur(0.2rem)";
+}
+
+function closeNav() {
+  document.getElementById("mySidepanel").style.width = "0";
+  document.getElementById("main-div").style.filter = "blur(0rem)";
+}

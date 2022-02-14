@@ -17,14 +17,11 @@
       <script src={{"assets/lib/popper.min.js" | relative_url}}></script>
    </head>
    <body class="text-color">
-      <div class="main-div">
-      <div class="top-div top-div-title">
-         <div><img id="cart-image" src="assets/lib/images/cart.png"/>
-            Food Retailing and Distribution 
-         </div>
-      </div>
-      <div class="bottom-div">
-         <div class="left">
+      
+      <div id="mySidepanel" class="sidepanel">
+         <div style="padding:5%">
+         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+         <div  sytle = "width:100% !important; height :100% !important">
             <div id="filter-div">
                <div class="filterLayer">Select Layers</div>
                <hr class="hr-tag" />
@@ -75,6 +72,77 @@
                </div>
             </div>
          </div>
+         </div>
+      </div>
+      <div id= "main-div" class="main-div">
+      <div class="top-div top-div-title">
+         <div class ="row">
+            <span style= "margin-left: 2%;" class="openbtn" onclick="openNav()">&#9776;</span>
+            <!-- <div  style= "margin-left: 2%; float :left"><button class="openbtn " onclick="openNav()">☰ </button>  
+            </div> -->
+            <div  style= "margin-left: 2%;"><img id="cart-image" src="assets/lib/images/cart.png"/>
+               Food Retailing and Distribution 
+            </div>
+            <div ></div>
+            <div  style= "font-size: 20px;
+        cursor: pointer;
+        top: 20px;
+        right: 20px;
+        position: fixed;"><span  onclick="openFaq()">☰ </span>  </div>
+         </div>
+      </div>
+      <div class="bottom-div">
+         <!-- <div class="left">
+            <div id="filter-div">
+               <div class="filterLayer">Select Layers</div>
+               <hr class="hr-tag" />
+            </div>
+            <br />
+            <div id="cash-filter-heading">
+               <div class="filterLayer">
+                  Cash Type
+                  <div id="cash-filter">
+                     <hr class="hr-tag" />
+                  </div>
+                  <br />
+                  <div class="form-check" id="noCashDiv" style="display: none">
+                     <input
+                        class="form-check-input"
+                        name="paymentFilter"
+                        type="checkbox"
+                        value=""
+                        onclick="userRequestedFilter(this)"
+                        id="na"
+                        />
+                     <label class="form-check-label" for="NoCash">
+                     Include No Cash Type
+                     </label>
+                  </div>
+               </div>
+            </div>
+            <br />
+            <div id="date-filter-heading">
+               <div class="filterLayer">
+                  Availability
+                  <div id="availability-filter">
+                     <hr class="hr-tag" />
+                  </div>
+                  <div class="form-check">
+                     <input
+                        class="form-check-input"
+                        name="dateFilter"
+                        type="checkbox"
+                        value="false"
+                        onclick="filterOpenToday(this)"
+                        id="openToday"
+                        />
+                     <label class="form-check-label" for="openToday">
+                     Is in season
+                     </label>
+                  </div>
+               </div>
+            </div>
+            </div> -->
          <div class="main">
             <div class="fullSize">
                <content>
@@ -111,7 +179,7 @@
                      </div>
                      <div id="mapid" />
                      </div>
-                     <div class="row" style="width: 100%; height: 15%; margin-left: unset;">
+                     <div class="row" id ="bottom-div" style="width: 100%; height: 15%; margin-left: unset;">
                         <div class="col-md-5 bottom-div-font">
                            <p>This dashboard displays&nbsp;<strong>retailing and distribution</strong>&nbsp;locations and related information of&nbsp;the Western New York (WNY) food system.&nbsp;&nbsp;</p>
                            <br/>
@@ -138,7 +206,8 @@
                </div>
             </div>
          </div>
-         <div class="right">
+         <div class="right" id="right-div">
+            <div>
             <div class="pie-chart border-bottom" style="width: 120%; height: auto" id="pie-chart">
                <h5><span style="font-size:20px"><strong>Food Retail and Distribution Types</strong></span></h5>
                <canvas id="myChart" class="explore_area" id="viewport"></canvas>
@@ -153,6 +222,7 @@
                <p>The co-op was founded in part to increase access to local foods and supporting and sourcing from WNY farms and producers continues in our work every day! From year-round local apples to fresh dairy, Buffalo-made pierogi, to locally brewed beers, natural meats from WNY farms, and local ingredients in our prepared foods, we’re committed to building our regional economy.</p>
                <p>Website:&nbsp;<a href="https://eastaurora.coop/">East Aurora Co-op Market</a></p>
             </div>
+            </div
          </div>
       </div>
    </body>
