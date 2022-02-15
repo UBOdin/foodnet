@@ -88,7 +88,7 @@ function countVisibleMarkers(map) {
 
   squareFitDiv.innerText = squareFtCount
     .toString()
-    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    .replace(/\B(?:!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
   squareFitDiv.style.display = "block";
 
   var squareFitDivLoading = document.getElementById("squareFtCountLoading");
