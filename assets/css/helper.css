@@ -4,6 +4,7 @@ body {
   padding: 0px;
   margin: 0px;
   color: #7fa6bf;
+  /* max-width: 95%; */
 }
 content {
   height: 100%;
@@ -16,7 +17,20 @@ svg {
 }
 
 img#cart-image {
-  width: 3%;
+  width: 8%;
+}
+span#title-one {
+  width: 80%;
+}
+
+.top-div.top-div-title {
+  display: flex;
+  align-items: center;
+}
+div#top-row-heading {
+  margin-left: 2%;
+  display: flex;
+  align-items: center;
 }
 
 #mapid {
@@ -61,7 +75,7 @@ img#co-op-image {
 }
 
 div#spot-light-text {
-  max-height: 13%;
+  max-height: 19%;
   padding: 1%;
   overflow: auto;
 }
@@ -123,8 +137,8 @@ div#count {
   border-left: unset !important;
   border-top: unset !important;
 }
-.font-weight-600 {
-  font-weight: 600;
+.font-weight-700 {
+  font-weight: 700;
 }
 .display-none {
   display: none !important;
@@ -171,7 +185,23 @@ div#count {
 #popover-content {
   display: none;
 }
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 700px) {
+  div#spot-light-text {
+    max-height: 200px;
+    padding: 1%;
+    overflow: auto;
+  }
+
+  .image-div {
+    height: 83%;
+  }
+  div#area {
+    float: right;
+    overflow: auto;
+  }
+  div#pie-chart {
+    height: auto !important;
+  }
   #mapid {
     display: inline-block;
     flex-grow: 1;
@@ -220,7 +250,7 @@ div#count {
     height: 160%;
   }
   .right {
-    overflow: auto;
+    /* overflow: auto; */
     /* background-color: #4caf50; */
     padding: 20px;
     border: 6px solid #9cc9e5 !important;
@@ -247,6 +277,8 @@ div#count {
   }
   div#right-div {
     padding: 0;
+    /* height: 106%; */
+    height: fit-content;
   }
   div#pie-chart {
     padding: 0;
@@ -277,7 +309,20 @@ div#count {
     margin-left: unset;
   }
 }
-@media only screen and (min-width: 480px) {
+@media only screen and (min-width: 700px) {
+  div#top-row-heading {
+    margin-left: 0%;
+  }
+  span.openbtn {
+    font-size: 42px;
+  }
+  img#cart-image {
+    width: 7%;
+  }
+  span#title-one {
+    width: 80%;
+    margin-left: 1%;
+  }
   .main-div {
     height: 100%;
     /* background: rgb(225, 236, 239); */
@@ -299,7 +344,7 @@ div#count {
     font-weight: 400;
   }
   .bottom-div {
-    overflow: auto;
+    /* overflow: auto; */
     height: 92%;
   }
   .left {
@@ -322,7 +367,7 @@ div#count {
     height: 100%;
   }
   .right {
-    overflow: auto;
+    /* overflow: auto; */
     #background-color: #4caf50;
     /* padding: 20px; */
     float: left;
@@ -383,4 +428,11 @@ div.explore_area {
 
 .openbtn:hover {
   background-color: #444;
+}
+
+.bottom-div {
+  width: 100% !important;
+}
+div#main-div {
+  /* width: 98%; */
 }
