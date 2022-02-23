@@ -9,6 +9,7 @@ L.tileLayer(
 
 // remove and add in reference file
 
+let metaData = {};
 let indexReference = [];
 let cachedMarkers = {};
 //let cachedCluster = {};
@@ -424,6 +425,9 @@ function reloadMap() {
   fetch("assets/reference/reference.json")
     .then((response) => response.json())
     .then((layers) => {
+      //console.log(layers);
+
+      metaData = JSON.parse(JSON.stringify(layers));
       var filterDiv = document.createElement("div");
       filterDiv.id = "filter";
       filterDiv.className = "filter";
@@ -475,6 +479,9 @@ function reloadMap() {
               "</label</div>"
           );
       });
+
+      // to load FAQ
+      loadFaqQuestions();
     });
 }
 
@@ -506,6 +513,53 @@ function getIcon(label, color) {
 
 reloadMap();
 
+function loadFaqQuestions() {
+  console.log(metaData["faqQuestions"]);
+  let faqFormat = metaData["faqQuestionFormat"];
+  let count = 1;
+  let htmlStringCol1 = "";
+  let htmlStringCol2 = "";
+  metaData["faqQuestions"].forEach(function (faq) {
+    let id = "faq-" + count;
+    if (count % 2 == 1) {
+      htmlStringCol1 +=
+        faqFormat.line1 +
+        faqFormat.line2 +
+        id +
+        faqFormat.line3 +
+        id +
+        faqFormat.line4 +
+        id +
+        faqFormat.line5 +
+        faq.question +
+        faqFormat.line6 +
+        id +
+        faqFormat.line7 +
+        faq.answer +
+        faqFormat.line8;
+    } else {
+      htmlStringCol2 +=
+        faqFormat.line1 +
+        faqFormat.line2 +
+        id +
+        faqFormat.line3 +
+        id +
+        faqFormat.line4 +
+        id +
+        faqFormat.line5 +
+        faq.question +
+        faqFormat.line6 +
+        id +
+        faqFormat.line7 +
+        faq.answer +
+        faqFormat.line8;
+    }
+    count++;
+  });
+
+  document.getElementById("faq-col-1").innerHTML = htmlStringCol1;
+  document.getElementById("faq-col-2").innerHTML = htmlStringCol2;
+}
 function openNav() {
   document.getElementById("mySidepanel").style.width = "275px";
   document.getElementById("main-div").style.filter = "blur(0.2rem)";
@@ -514,4 +568,12 @@ function openNav() {
 function closeNav() {
   document.getElementById("mySidepanel").style.width = "0";
   document.getElementById("main-div").style.filter = "blur(0rem)";
+}
+
+function openFaq() {
+  document.getElementById("faqBar").style.width = "100%";
+}
+
+function closeFaq() {
+  document.getElementById("faqBar").style.width = "0";
 }

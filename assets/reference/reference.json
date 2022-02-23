@@ -60,5 +60,53 @@
       "question": "",
       "answer": ""
     }
+  ],
+  "faqQuestionFormat": {
+    "line1": "<div class=\"accordion-item\">",
+    "line2": "<h2 class=\"accordion-header\"  id =\" ",
+    "line3": "\"><button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\" #",
+    "line4": "\" aria-expanded=\"false\" aria-controls=\"",
+    "line5": "\"> ",
+    "line6": "</button></h2> <div id=\"",
+    "line7": "\" class=\"accordion-collapse collapse\" aria-labelledby=\"flush-headingOne\" data-bs-parent=\"#faq-col-1\"> <div class=\"accordion-body\">",
+    "line8": "</div>  </div> </div>"
+  },
+  "faqQuestions": [
+    {
+      "question": "This is the question 1",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 2",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 3",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 4",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 5",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 6",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 7",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 8",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    },
+    {
+      "question": "This is the question 9",
+      "answer": "This is the answer fot he question that needs to be replaces with original answer"
+    }
   ]
 }
