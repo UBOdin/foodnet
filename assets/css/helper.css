@@ -3,7 +3,7 @@ body {
   height: 100%;
   padding: 0px;
   margin: 0px;
-  color: #7fa6bf;
+  color: #7fa6bf !important;
   /* max-width: 95%; */
 }
 content {
@@ -185,7 +185,35 @@ div#count {
 #popover-content {
   display: none;
 }
+@media screen and (max-width: 600px) {
+  span#tab-name {
+    display: none;
+  }
+
+  #row-logo {
+    width: 32% !important;
+    font-size: medium;
+  }
+  span#title-one {
+    width: 89%;
+  }
+  img#cart-image {
+    width: 30%;
+  }
+  #search-box {
+    width: 54% !important;
+    float: right;
+    margin-left: 0;
+  }
+}
 @media screen and (max-width: 700px) {
+  #top-row-heading {
+    width: auto !important;
+  }
+  #row-logo {
+    width: 50%;
+    font-size: medium;
+  }
   div#spot-light-text {
     max-height: 200px;
     padding: 1%;
@@ -311,13 +339,19 @@ div#count {
 }
 @media only screen and (min-width: 700px) {
   div#top-row-heading {
+    width: 98%;
+  }
+  #row-logo {
+    width: 56%;
+  }
+  div#top-row-heading {
     margin-left: 0%;
   }
   span.openbtn {
     font-size: 42px;
   }
   img#cart-image {
-    width: 7%;
+    width: 6%;
   }
   span#title-one {
     width: 80%;
@@ -435,4 +469,115 @@ div.explore_area {
 }
 div#main-div {
   /* width: 98%; */
+}
+
+/* CSS for FAQ panel starts */
+
+#faqBar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  right: 0;
+  /* background-color: #e7e9eb; */
+  background-color: #fff;
+  overflow-x: hidden;
+  transition: 0.5s;
+  /* padding-top: 60px; */
+  text-align: center;
+}
+
+#faqBar a {
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+#faqBar a:hover,
+#faqBar .offcanvas a:focus {
+  color: #f1f1f1;
+}
+
+#faqBar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 55px;
+  margin-left: 50px;
+}
+
+@media screen and (max-width: 700px) {
+  .faqBar {
+    padding-top: 15px;
+  }
+  .faqBar a {
+    font-size: 18px;
+  }
+  a.closebtn {
+    font-size: 30px !important;
+    padding: 5% !important;
+  }
+}
+/* CSS for FAQ panel ends */
+
+/* CSS for accorsion from bootstrap 5 starts */
+
+.accordion {
+  overflow-anchor: none;
+}
+.accordion-flush .accordion-item:first-child {
+  border-top: 0;
+}
+.accordion-flush .accordion-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+accordion-item {
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.accordion-header {
+  margin-bottom: 0;
+}
+
+accordion-flush .accordion-item .accordion-button {
+  border-radius: 0;
+}
+
+.accordion-button:not(.collapsed) {
+  color: #0c63e4;
+  background-color: #e7f1ff;
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
+}
+
+.accordion-button:hover {
+  z-index: 2;
+}
+
+accordion-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+  border: 0;
+  border-radius: 0;
+  overflow-anchor: none;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    border-radius 0.15s ease;
+}
+
+accordion-flush .accordion-collapse {
+  border-width: 0;
 }
