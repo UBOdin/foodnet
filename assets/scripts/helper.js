@@ -519,7 +519,7 @@ reloadMap();
 function loadFaqQuestions() {
   console.log(metaData["faqQuestions"]);
   let faqFormat = metaData["faqQuestionFormat"];
-  let count = 1;
+  let count = 0;
   let htmlStringCol1 = "";
   let htmlStringCol2 = "";
   metaData["faqQuestions"].forEach(function (faq) {
