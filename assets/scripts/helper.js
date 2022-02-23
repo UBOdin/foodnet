@@ -1,4 +1,7 @@
-var theMap = L.map("mapid").setView([43.016844, -78.741447], 11);
+var theMap = L.map("mapid", { attributionControl: false }).setView(
+  [43.016844, -78.741447],
+  11
+);
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
   {
