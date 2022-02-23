@@ -185,12 +185,33 @@ div#count {
 #popover-content {
   display: none;
 }
+@media screen and (max-width: 600px) {
+  span#tab-name {
+    display: none;
+  }
+
+  #row-logo {
+    width: 32% !important;
+    font-size: medium;
+  }
+  span#title-one {
+    width: 89%;
+  }
+  img#cart-image {
+    width: 30%;
+  }
+  #search-box {
+    width: 54% !important;
+    float: right;
+    margin-left: 0;
+  }
+}
 @media screen and (max-width: 700px) {
   #top-row-heading {
     width: auto !important;
   }
   #row-logo {
-    width: 83%;
+    width: 50%;
     font-size: medium;
   }
   div#spot-light-text {
@@ -321,7 +342,7 @@ div#count {
     width: 98%;
   }
   #row-logo {
-    width: 96%;
+    width: 56%;
   }
   div#top-row-heading {
     margin-left: 0%;
@@ -330,7 +351,7 @@ div#count {
     font-size: 42px;
   }
   img#cart-image {
-    width: 3%;
+    width: 6%;
   }
   span#title-one {
     width: 80%;
