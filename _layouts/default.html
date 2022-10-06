@@ -5,229 +5,95 @@
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>{{page.title}} </title>
-      <link
-      rel="stylesheet"
-      href={{"assets/lib/leaflet.css" | relative_url}}
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""
-      ></link>
-      <link rel="stylesheet" href={{"assets/lib/bootstrap.min.css" | relative_url}}> </link>
-      <link rel="stylesheet" href={{"assets/lib/MarkerCluster.Default.css" | relative_url}}></link>
-      <link rel="stylesheet" href={{"assets/css/helper.css" | relative_url}} />
-      <script src={{"assets/lib/popper.min.js" | relative_url}}></script>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="{{"assets/lib/leaflet.css" | relative_url}}"></link>
+      <link rel="stylesheet" href="{{"assets/lib/bootstrap.min.css" | relative_url}}"></link>
+      <link rel="stylesheet" href="{{"assets/lib/MarkerCluster.Default.css" | relative_url}}"></link>
+      <link rel="stylesheet" href="{{"assets/css/main.css" | relative_url}}" />
+      <script src="{{"assets/lib/popper.min.js" | relative_url}}"></script>
    </head>
-   <body class="text-color">
-      <div id="faqBar" class="faqNav">
-         <div style="width: 100%; height: 100%; align-items: center; padding: 2%;" class="well">
-            <a style ="z-index:1" href="javascript:void(0)" class="closebtn" onclick="closeFaq()"
-               >&times;</a
-               >
-            <div  class ="card" style=" width: 100%; height: 100%;">
-               <div class="jumbotron" id ="faq-title" style="background-color: lightgrey; height: 40%;">
-                  <h1 style="font-weight: 300; color: black;">How can we help you?</h1>
-                  <br/>
-                  <div style="position: relative;
-                     display: flex;
-                     flex-flow: column wrap;
-                     align-items: center;">     
-                     <input class="form-control" id="inputdefault" placeholder="Type keyword to find answer" type="text" style=" width:40%">
-                  </div>
-                  <br/>
-                  <p style="font-weight: 300; color: black;">You can also browse the topics below to find what you are looking for.</p>
-               </div>
-               <div style="height: 65%">
-                  <div class="row" style="padding:2%">
-                     <div class=" col-md-6" style ="height: 100%" >
-                        <div class="accordion accordion-flush" id="faq-col-1">
-                        </div>
-                     </div>
-                     <div class=" col-md-6"  style ="height: 100%">
-                        <div class="accordion accordion-flush" id="faq-col-2">
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
+   <body>
+      <div id="content" class="content">
+         <div class="header">
+            <button class="filter-button" onclick="openNav()">&#9776;</button>
+            <!-- <img class="cart-image" src="assets/lib/images/cart.png"/> -->
+            <span class="spacer"></span>
+            <span class="search">
+               <form id="search-box">
+                  <input type="search" placeholder="Start searching with keyword" aria-label="Search" />
+               </form>
+            </span>
+            <span class="spacer"></span>
+            <button class="feedback" onclick='window.open("https://bhavinjawade.github.io/SCC-Camera-App/", "_blank")'>📷</button>
+         </div>
+         <div class="main">
+            <div id="map"></div>
          </div>
       </div>
-      </div>
-      <div id="mySidepanel" class="sidepanel">
-         <div style="padding:5%">
-            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-            <div  sytle = "width:100% !important; height :100% !important">
-               <div id="filter-div">
-                  <div class="filterLayer">Select Layers</div>
+
+      <div id="filter-bar" class="sidepanel">
+         <div class="header">
+            <button onclick="closeNav()">×</button>
+            Data Sources/Filters
+         </div>
+         <hr class="hr-tag" />
+         <div id="filter-div">
+            <div class="filterLayer">Select Data</div>
+         </div>
+         <hr class="hr-tag" />
+         <br />
+         <div id="cash-filter-heading">
+            <div class="filterLayer">
+               Cash Type
+               <div id="cash-filter">
                   <hr class="hr-tag" />
                </div>
                <br />
-               <div id="cash-filter-heading">
-                  <div class="filterLayer">
-                     Cash Type
-                     <div id="cash-filter">
-                        <hr class="hr-tag" />
-                     </div>
-                     <br />
-                     <div class="form-check" id="noCashDiv" style="display: none">
-                        <input
-                           class="form-check-input"
-                           name="paymentFilter"
-                           type="checkbox"
-                           value=""
-                           onclick="userRequestedFilter(this)"
-                           id="na"
-                           />
-                        <label class="form-check-label" for="NoCash">
-                        Include No Cash Type
-                        </label>
-                     </div>
-                  </div>
+               <div class="form-check" id="noCashDiv" style="display: none">
+                  <input
+                     class="form-check-input"
+                     name="paymentFilter"
+                     type="checkbox"
+                     value=""
+                     onclick="userRequestedFilter(this)"
+                     id="na"
+                     />
+                  <label class="form-check-label" for="NoCash">
+                  Include "Maybe"s
+                  </label>
                </div>
-               <br />
-               <div id="date-filter-heading">
-                  <div class="filterLayer">
-                     Availability
-                     <div id="availability-filter">
-                        <hr class="hr-tag" />
-                     </div>
-                     <div class="form-check">
-                        <input
-                           class="form-check-input"
-                           name="dateFilter"
-                           type="checkbox"
-                           value="false"
-                           onclick="filterOpenToday(this)"
-                           id="openToday"
-                           />
-                        <label class="form-check-label" for="openToday">
-                        Is in season
-                        </label>
-                     </div>
-                  </div>
+            </div>
+         </div>
+         <br />
+         <div id="date-filter-heading">
+            <div class="filterLayer">
+               Availability
+               <div id="availability-filter">
+                  <hr class="hr-tag" />
+               </div>
+               <div class="form-check">
+                  <input
+                     class="form-check-input"
+                     name="dateFilter"
+                     type="checkbox"
+                     value="false"
+                     onclick="filterOpenToday(this)"
+                     id="openToday"
+                     />
+                  <label class="form-check-label" for="openToday">
+                  Is in season
+                  </label>
                </div>
             </div>
          </div>
       </div>
-      <div id= "main-div" class="main-div">
-      <div class="top-div top-div-title">
-         <div class ="row" id="top-row-heading">
-            <!-- <div ><span style= "margin-left: 2%;" class="openbtn" onclick="openNav()">&#9776;</span>
-               </div> <div  style= "margin-left: 2%; float :left"><button class="openbtn " onclick="openNav()">☰ </button> 
-                 </div> 
-                 <div  style= "margin-left: 2%;"><img id="cart-image" src="assets/lib/images/cart.png"/>
-                    Food Retailing and Distribution 
-                 </div> -->
-            <div id= "row-logo" style="float:left;"> <span style="display: contents" class="openbtn col-md-6" onclick="openNav()">&#9776;</span><span id="title-one" style="display: contents"><img id="cart-image" src="assets/lib/images/cart.png"/>  <span id="tab-name">Food Retailing and Distribution </span>
-               </span>
-            </div>
-             <form id="search-box" class="form-inline" style="width: 40% ;float:right">
-    <input class="form-control mr-sm-2" type="search" placeholder="Start searching with keyword" aria-label="Search">
-  </form>
 
-            <div id="row-faq" style="width: 2%; float:right;" >  <span  style= "cursor: pointer;" onclick="openFaq()"><img id="faq-image" src="assets/lib/images/faq.svg"> </span></div>
-            <!-- <div  style= "font-size: 20px;
-               cursor: pointer;
-               top: 20px;
-               right: 20px;
-               position: fixed;"><span  onclick="openFaq()">☰ </span> 
-                </div> -->
-         </div>
-      </div>
-      <div class="bottom-div">
-      <div class="main">
-         <div class="fullSize">
-            <content>
-               <div class="fullSize">
-                  <div id="mapDiv" class="top-div top-div-border top-div-height">
-                     <div class="countDiv left" id="count">
-                        <div id="countLoading" class="fullSize">
-                           <div class="loader"></div>
-                        </div>
-                        <div id="grid-container" class="grid-container">
-                           <div class="grid-row font-weight-600">
-                              The current map extent below has
-                           </div>
-                           <div id="count-div" class="grid-row big-font"></div>
-                           <div class="grid-row font-weight-600">
-                              food retail and distribution locations
-                           </div>
-                        </div>
-                     </div>
-                     <div class="right squareFtDiv" id="area">
-                        <div id="squareFtCountLoading" class="fullSize">
-                           <div class="loader"></div>
-                        </div>
-                        <div id="grid-container" class="grid-container">
-                           <div class="grid-row font-weight-600">
-                              The current map extent below has
-                           </div>
-                           <div id="square-feet-div" class="grid-row big-font"></div>
-                           <div class="grid-row font-weight-600">
-                              square foot of food retail stores
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div id="mapid" />
-                  </div>
-                  <div class="row" id ="bottom-div" style="width: 100%; height: 15%; margin-left: unset;">
-                     <div class="col-md-5 bottom-div-font">
-                        <p>This dashboard displays&nbsp;<strong>retailing and distribution</strong>&nbsp;locations and related information of&nbsp;the Western New York (WNY) food system.&nbsp;&nbsp;</p>
-                        <br/>
-                        <p><strong>Food retailing and distribution</strong>&nbsp;are related to the selling of food to consumers to be prepared or eaten off-site. Food retail takes place in a variety of venues, including grocery stores, farmers' markets, general merchandise stores, and corner stores. Consumers include households, individuals, and institutions.</p>
-                        <br/>
-                        <p><strong>Data sources:</strong></p>
-                        <ul>
-                           <li>New York State Department of Agriculture and Markets</li>
-                           <li>USDA Agricultural Marketing Service</li>
-                           <li>U.S. Census Bureau</li>
-                           <li>U.S. Bureau of Economic Analysis</li>
-                        </ul>
-                     </div>
-                     <div class="col-md-3 bottom-div-font">
-                        <h5>Food Retail Pop-ups</h5>
-                     </div>
-                     <div class="col-md-4 bottom-div-font-last">
-                        <div >
-                           <p><span style="font-size:18px"><strong>Quick Fact</strong></span></p>
-                        </div>
-                     </div>
-                  </div>
-            </content>
-            </div>
-         </div>
-      </div>
-      <div class="right" id="right-div">
-         <div style="height:100%">
-            <div class="pie-chart border-bottom" style="width: 100%; height: 49%" id="pie-chart">
-               <h5><span style="font-size:20px"><strong>Food Retail and Distribution Types</strong></span></h5>
-               <canvas id="myChart" class="explore_area" id="viewport"></canvas>
-            </div>
-            <div style="height:32%">
-               <h5>Spotlight on:&nbsp;<em><strong>East Aurora Co-op Market</strong></em></h5>
-               <div class="image-div">
-                  <img  id= "co-op-image" src="assets/lib/images/co-op-image.jpeg" alt="Italian Trulli">
-               </div>
-            </div>
-            <div id="spot-light-text">
-               <p>The co-op was founded in part to increase access to local foods and supporting and sourcing from WNY farms and producers continues in our work every day! From year-round local apples to fresh dairy, Buffalo-made pierogi, to locally brewed beers, natural meats from WNY farms, and local ingredients in our prepared foods, we’re committed to building our regional economy.</p>
-               <p>Website:&nbsp;<a href="https://eastaurora.coop/">East Aurora Co-op Market</a></p>
-            </div>
-            </div
-         </div>
-      </div>
    </body>
-   <script
-   src={{ "assets/lib/leaflet.js" | relative_path }}
-   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-   crossorigin=""
-   ></script>
-   <script type="text/javascript" src={{"assets/lib/jquery-3.6.0.min.js" | relative_url}}></script>
-   <script type="text/javascript" src={{"assets/lib/bootstrap.min.js" | relative_url}}></script>
-   <script src={{"assets/lib/leaflet.markercluster.js" | relative_url}}></script>
-   <script src={{"assets/lib/charts.lib.js" | relative_url}}></script>
-   <script type="text/javascript" src={{"assets/scripts/helper.js" | relative_url}}></script>
-   <script type="text/javascript" src={{"assets/scripts/pie-helper.js" | relative_url}}></script>
-   <script type="text/javascript" src={{"assets/lib/plugins/leaflet.ajax.min.js"| relative_url}}></script>
+   <script src="{{ "assets/lib/leaflet.js" | relative_path }}"></script>
+   <script type="text/javascript" src="{{"assets/lib/jquery-3.6.0.min.js" | relative_url}}"></script>
+   <script type="text/javascript" src="{{"assets/lib/bootstrap.min.js" | relative_url}}"></script>
+   <script src="{{"assets/lib/leaflet.markercluster.js" | relative_url}}"></script>
+   <!-- <script src={{"assets/lib/charts.lib.js" | relative_url}}></script> -->
+   <script type="text/javascript" src="{{"assets/scripts/main.js" | relative_url}}"></script>
+   <!-- <script type="text/javascript" src={{"assets/scripts/pie-helper.js" | relative_url}}></script> -->
+   <script type="text/javascript" src="{{"assets/lib/plugins/leaflet.ajax.min.js"| relative_url}}"></script>
 </html>

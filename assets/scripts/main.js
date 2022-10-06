@@ -1,4 +1,4 @@
-var theMap = L.map("mapid", { attributionControl: false }).setView(
+var theMap = L.map("map", { attributionControl: false }).setView(
   [43.016844, -78.741447],
   11
 );
@@ -43,85 +43,6 @@ theMap.eachLayer(function (layer) {
   ) {
     markerList.push(layer);
   }
-});
-
-function countVisibleMarkers(map) {
-  var markerCount = 0;
-  var squareFtCount = 0;
-  pieChartData = {};
-  let layerName = undefined;
-  map.eachLayer(function (layer) {
-    if (
-      layer instanceof L.Marker &&
-      map.getBounds().contains(layer.getLatLng())
-    ) {
-      if (layer.hasOwnProperty("_childClusters")) {
-        markerCount += layer.getAllChildMarkers().length;
-        layer.getAllChildMarkers().forEach((element) => {
-          squareFtCount += parseInt(element.feature.properties.sq_feet);
-          if (
-            pieChartData.hasOwnProperty(element.feature.properties.layerName)
-          ) {
-            pieChartData[element.feature.properties.layerName] =
-              pieChartData[element.feature.properties.layerName] + 1;
-          } else {
-            pieChartData[element.feature.properties.layerName] = 1;
-          }
-        });
-      } else {
-        if (pieChartData.hasOwnProperty(layer.feature.properties.layerName)) {
-          pieChartData[layer.feature.properties.layerName] =
-            pieChartData[layer.feature.properties.layerName] + 1;
-        } else {
-          pieChartData[layer.feature.properties.layerName] = 1;
-        }
-        markerCount++;
-        squareFtCount += parseInt(layer.feature.properties.sq_feet);
-      }
-    }
-  });
-
-  var loadingDiv = document.getElementById("countLoading");
-  loadingDiv.style.display = "none";
-
-  var countDiv = document.getElementById("count-div");
-  countDiv.innerText = markerCount;
-  countDiv.style.display = "block";
-
-  var squareFitDiv = document.getElementById("square-feet-div");
-
-  squareFitDiv.innerText = squareFtCount
-    .toString()
-    .replace(/\B(?:!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-  squareFitDiv.style.display = "block";
-
-  var squareFitDivLoading = document.getElementById("squareFtCountLoading");
-  squareFitDivLoading.style.display = "none";
-
-  let tempInfo = pieChartInfo;
-  reloadPieChart(pieChartData, pieChartInfo);
-  return markerCount;
-}
-function reloadPieChart(pieChartData, defaultInfo) {
-  //console.log(pieChartData);
-  defaultInfo.labels = [];
-  defaultInfo.datasets[0].data = [];
-  Object.entries(pieChartData).forEach(([jsonLayerName, jsonCount]) => {
-    defaultInfo.labels.push(
-      jsonLayerName.substring(0, jsonLayerName.indexOf(".json"))
-    );
-
-    defaultInfo.datasets[0].data.push(jsonCount);
-  });
-
-  createPie(defaultInfo);
-}
-theMap.on("zoomend", () => {
-  countVisibleMarkers(theMap);
-});
-
-theMap.on("dragend", function () {
-  countVisibleMarkers(theMap);
 });
 
 function filterMarkers(json) {
@@ -188,6 +109,8 @@ function returnMarker(json, latlng, layer) {
 }
 
 function showLayer(layer) {
+  console.log("Showing layer")
+  console.log(layer)
   if (cachedMarkers.hasOwnProperty(layer)) {
     lyrMarkerCluster.addLayer(cachedMarkers[layer]);
     currentLayerCount++;
@@ -428,14 +351,12 @@ function reloadMap() {
   fetch("assets/reference/reference.json")
     .then((response) => response.json())
     .then((layers) => {
-      //console.log(layers);
+      console.log(layers);
 
       metaData = JSON.parse(JSON.stringify(layers));
       var filterDiv = document.createElement("div");
       filterDiv.id = "filter";
       filterDiv.className = "filter";
-
-      //layers.layersIndex.forEach(function (layer) {
 
       for (var index in layers.layersIndex) {
         let layer = layers.layersIndex[index];
@@ -463,6 +384,8 @@ function reloadMap() {
           document.getElementById(layer.id).checked = false;
         }
       }
+
+      console.log("here")
       var paymentFilter = document.createElement("div");
       paymentFilter.id = "paymentFilter";
       paymentFilter.className = "paymentFilter";
@@ -483,8 +406,6 @@ function reloadMap() {
           );
       });
 
-      // to load FAQ
-      loadFaqQuestions();
     });
 }
 
@@ -564,13 +485,15 @@ function loadFaqQuestions() {
   document.getElementById("faq-col-2").innerHTML = htmlStringCol2;
 }
 function openNav() {
-  document.getElementById("mySidepanel").style.width = "275px";
-  document.getElementById("main-div").style.filter = "blur(0.2rem)";
+  document.getElementById("filter-bar").style.width = "275px";
+  document.getElementById("filter-bar").style.visibility = "visible";
+  document.getElementById("content").style.filter = "blur(0.2rem)";
 }
 
 function closeNav() {
-  document.getElementById("mySidepanel").style.width = "0";
-  document.getElementById("main-div").style.filter = "blur(0rem)";
+  document.getElementById("filter-bar").style.width = "0";
+  document.getElementById("filter-bar").style.visibility = "hidden";
+  document.getElementById("content").style.filter = "blur(0rem)";
 }
 
 function openFaq() {
