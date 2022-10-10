@@ -114,9 +114,6 @@ function showLayer(layer) {
   if (cachedMarkers.hasOwnProperty(layer)) {
     lyrMarkerCluster.addLayer(cachedMarkers[layer]);
     currentLayerCount++;
-    if (totalLayersSelected == currentLayerCount) {
-      countVisibleMarkers(theMap);
-    }
   } else {
     currentLayer = layer;
     let layerInfo = L.geoJSON.ajax("assets/data-files/" + layer, {
@@ -134,9 +131,6 @@ function showLayer(layer) {
 
       lyrMarkerCluster.addTo(theMap);
       currentLayerCount++;
-      if (totalLayersSelected == currentLayerCount) {
-        countVisibleMarkers(theMap);
-      }
     });
   }
 }
@@ -146,6 +140,20 @@ function generatePopUp(properties) {
     properties.seasonal != null && properties.seasonal.length > 0
       ? generateDateString(properties)
       : "Not available!";
+  var addressString =
+    properties.address != null ? (
+        properties.address.street +
+        "<br/>" +
+        properties.address.city +
+        ", " +
+        properties.address.state +
+        ", " +
+        properties.address.zip
+      ) : "Address not available"
+  var productsString = 
+    properties.products != null ? (
+        "<hr/><b>Products: </b>" + properties.products.join(", ")
+      ) : ""
   var popUp =
     "<b>" +
     properties.marketname +
@@ -159,16 +167,11 @@ function generatePopUp(properties) {
     properties.y.toString() +
     "," +
     properties.x.toString() +
-    '\' target=\'_blank\'><img src="graphics/icons/camera.svg" height="16px" width="16px" /></a><br/><i>' +
-    properties.address.street +
-    "<br/>" +
-    properties.address.city +
-    " ," +
-    properties.address.state +
-    " ," +
-    properties.address.zip +
-    "</i><br/><hr/><b>Open Hours: </b><br/>" +
+    '\' target=\'_blank\'><img src="graphics/icons/camera.svg" height="16px" width="16px" /></a>' +
+    '<br/><i>' + addressString + "</i>" + 
+    "<br/><hr/><b>Open Hours: </b><br/>" +
     dateString +
+    productsString + 
     "<hr/><span class='font-size: -1pt;'>Last Updated: " +
     properties.updated +
     " <a href='javascript:feedbackForRecord(\"" +
