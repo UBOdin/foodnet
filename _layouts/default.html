@@ -19,7 +19,7 @@
             <span class="spacer"></span>
             <span class="search">
                <form id="search-box">
-                  <input type="search" placeholder="Start searching with keyword" aria-label="Search" />
+                  <input id="search-entry" type="search" placeholder="Start searching with keyword" aria-label="Search" list="keywords" oninput="updateSearchFilter()" />
                </form>
             </span>
             <span class="spacer"></span>
@@ -86,6 +86,9 @@
             </div>
          </div>
       </div>
+
+      <datalist id="keywords">
+      </datalist>
 
    </body>
    <script src="{{ "assets/lib/leaflet.js" | relative_path }}"></script>

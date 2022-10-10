@@ -17,16 +17,18 @@ let indexReference = [];
 let cachedMarkers = {};
 //let cachedCluster = {};
 let cachedIcons = {};
-let lyrMarkerCluster;
-let lyrMarkers = [];
+let layerMarkerCluster;
+let layerMarkers = [];
 let filterConditions = [];
 let paymentOption = [];
+let selectedPoints = [];
+let searchKeywords = {}
 
 let totalLayersSelected = 0;
 
 let currentLayerCount = 0;
 
-lyrMarkerCluster = L.markerClusterGroup();
+layerMarkerCluster = L.markerClusterGroup();
 
 let isOpenTodayCondition = false;
 
@@ -34,7 +36,7 @@ var markerList = [];
 
 let currentLayer = {};
 
-let pieChartData = {};
+
 
 theMap.eachLayer(function (layer) {
   if (
@@ -45,11 +47,20 @@ theMap.eachLayer(function (layer) {
   }
 });
 
-function filterMarkers(json) {
+function filterMarkers(json, layer) {
   if (filterConditions.length == 0 && !isOpenTodayCondition) return true;
   var element = json.properties;
 
   let elementvalid = false;
+
+  if (filterConditions.includes("explicit"))
+  {
+    var id = layer+":"+json.properties.official_id
+    // console.log("Explicit filter check on "+id)
+    if(!selectedPoints.includes(id)){
+      return false
+    }
+  }
 
   if (filterConditions.includes("payment")) {
     for (payment in paymentOption) {
@@ -67,7 +78,9 @@ function filterMarkers(json) {
         break;
       }
     }
-  } else elementvalid = true;
+  } else {
+    elementvalid = true;
+  }
 
   let isOpenToday = false;
   if (isOpenTodayCondition) {
@@ -112,24 +125,25 @@ function showLayer(layer) {
   console.log("Showing layer")
   console.log(layer)
   if (cachedMarkers.hasOwnProperty(layer)) {
-    lyrMarkerCluster.addLayer(cachedMarkers[layer]);
+    layerMarkerCluster.addLayer(cachedMarkers[layer]);
     currentLayerCount++;
   } else {
     currentLayer = layer;
-    let layerInfo = L.geoJSON.ajax("assets/data-files/" + layer, {
+
+    let layerInfo = L.geoJSON.ajax("assets/data-files/" + layer + ".json", {
       pointToLayer: function (feature, latlng) {
         return returnMarker(feature, latlng, layer);
       },
-      filter: filterMarkers,
+      filter: function(json) { return filterMarkers(json, layer) },
     });
 
     layerInfo.on("data:loaded", function (element) {
-      if (paymentOption.length == 0) lyrMarkers.push(layerInfo);
+      if (paymentOption.length == 0) layerMarkers.push(layerInfo);
 
-      lyrMarkerCluster.addLayer(layerInfo);
+      layerMarkerCluster.addLayer(layerInfo);
       cachedMarkers[layer] = layerInfo;
 
-      lyrMarkerCluster.addTo(theMap);
+      layerMarkerCluster.addTo(theMap);
       currentLayerCount++;
     });
   }
@@ -228,8 +242,7 @@ function hideLayer(layer) {
   if (cachedMarkers[layer] != undefined) {
     totalLayersSelected--;
     currentLayerCount--;
-    lyrMarkerCluster.removeLayer(cachedMarkers[layer]);
-    countVisibleMarkers(theMap);
+    layerMarkerCluster.removeLayer(cachedMarkers[layer]);
   }
 }
 
@@ -253,23 +266,23 @@ function userRequestedFilter(event) {
         refreshMap();
         //return;
       }
-      lyrMarkerCluster.clearLayers();
+      layerMarkerCluster.clearLayers();
       if (paymentOption.length == 0) {
         cachedMarkers = {};
         cachedIcons = {};
-        lyrMarkers = [];
+        layerMarkers = [];
         filterConditions = [];
 
         indexReference.forEach(function (layer) {
           if (layer.isChecked) {
-            showLayer(layer.fileName);
+            showLayer(layer.id);
           } else {
             document.getElementById(layer.id).checked = false;
           }
         });
       } else
-        for (var i in lyrMarkers) {
-          lyrMarkers[i].refresh();
+        for (var i in layerMarkers) {
+          layerMarkers[i].refresh();
         }
     } else {
       refreshMap();
@@ -300,8 +313,8 @@ function refreshMap() {
   });
 
   if (paymentOption.length > 0) {
-    lyrMarkerCluster.clearLayers();
-    lyrMarkers.forEach((element) => {
+    layerMarkerCluster.clearLayers();
+    layerMarkers.forEach((element) => {
       element.refresh();
     });
   }
@@ -310,8 +323,8 @@ function filterOpenToday(event) {
   if ((event.name = "dateFilter")) {
     isOpenTodayCondition = document.getElementById("openToday").checked;
 
-    lyrMarkerCluster.clearLayers();
-    lyrMarkers.forEach((element) => {
+    layerMarkerCluster.clearLayers();
+    layerMarkers.forEach((element) => {
       element.refresh();
     });
   }
@@ -371,7 +384,7 @@ function reloadMap() {
           .insertAdjacentHTML(
             "afterbegin",
             '<div class="form-check"><input type="checkbox" data-layer=' +
-              layer.fileName +
+              layer.id +
               ' checked="' +
               layer.isChecked +
               '" class="form-check-input filled-in" id="' +
@@ -382,7 +395,7 @@ function reloadMap() {
           );
         if (layer.isChecked) {
           totalLayersSelected++;
-          showLayer(layer.fileName);
+          showLayer(layer.id);
         } else {
           document.getElementById(layer.id).checked = false;
         }
@@ -410,6 +423,22 @@ function reloadMap() {
       });
 
     });
+  fetch("assets/index-files/index.json")
+     .then((response) => response.json())
+     .then((keywords) => {
+        searchKeywords = {}
+        for(keyword in keywords.product)
+        {
+          searchKeywords[keyword] = "product_"+keywords.product[keyword]
+        }
+        var datalist = document.getElementById("keywords")
+        datalist.innerText = ""
+        for(keyword in keywords.product){
+          var elem = document.createElement("option")
+          elem.value = keyword
+          datalist.appendChild(elem)
+        }
+     })
 }
 
 function getIcon(label, color) {
@@ -439,54 +468,6 @@ function getIcon(label, color) {
 }
 
 reloadMap();
-
-function loadFaqQuestions() {
-  console.log(metaData["faqQuestions"]);
-  let faqFormat = metaData["faqQuestionFormat"];
-  let count = 0;
-  let htmlStringCol1 = "";
-  let htmlStringCol2 = "";
-  metaData["faqQuestions"].forEach(function (faq) {
-    let id = "faq-" + count;
-    if (count % 2 == 1) {
-      htmlStringCol1 +=
-        faqFormat.line1 +
-        faqFormat.line2 +
-        id +
-        faqFormat.line3 +
-        id +
-        faqFormat.line4 +
-        id +
-        faqFormat.line5 +
-        faq.question +
-        faqFormat.line6 +
-        id +
-        faqFormat.line7 +
-        faq.answer +
-        faqFormat.line8;
-    } else {
-      htmlStringCol2 +=
-        faqFormat.line1 +
-        faqFormat.line2 +
-        id +
-        faqFormat.line3 +
-        id +
-        faqFormat.line4 +
-        id +
-        faqFormat.line5 +
-        faq.question +
-        faqFormat.line6 +
-        id +
-        faqFormat.line7 +
-        faq.answer +
-        faqFormat.line8;
-    }
-    count++;
-  });
-
-  document.getElementById("faq-col-1").innerHTML = htmlStringCol1;
-  document.getElementById("faq-col-2").innerHTML = htmlStringCol2;
-}
 function openNav() {
   document.getElementById("filter-bar").style.width = "275px";
   document.getElementById("filter-bar").style.visibility = "visible";
@@ -499,10 +480,29 @@ function closeNav() {
   document.getElementById("content").style.filter = "blur(0rem)";
 }
 
-function openFaq() {
-  document.getElementById("faqBar").style.width = "100%";
-}
+function updateSearchFilter() {
+  var target = document.getElementById("search-entry").value
 
-function closeFaq() {
-  document.getElementById("faqBar").style.width = "0";
+  if(searchKeywords[target]){
+    var id = searchKeywords[target]
+    console.log("Updated search filter to "+target+" -> "+id)
+    fetch("assets/index-files/"+id+".json")
+      .then((resp) => resp.json())
+      .then((elements) => {
+        console.log("filtering down to "+elements)
+        selectedPoints = elements
+        if(!filterConditions.includes("explicit")) { 
+          filterConditions.push("explicit") 
+        }
+
+        layerMarkerCluster.clearLayers();
+        layerMarkers.forEach((element) => {
+          element.refresh();
+        });
+
+      })
+  } else if(target == ""){
+    console.log("Clearing search filter")
+    filterConditions = filterConditions.filter( (x) => x != "explicit" )
+  }
 }

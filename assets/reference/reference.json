@@ -3,29 +3,21 @@
     {
       "id": "retail",
       "layerName": "Retail Food Store",
-      "fileName": "NYS-RetailFoodStores.json",
-      "path": "Layers/json-files/NYS-RetailFoodStores.json",
       "isChecked": false
     },
     {
       "id": "farmers_market",
       "layerName": "Farmers with Markets",
-      "fileName": "AMS-USDA-Directories-FarmersMarkets.json",
-      "path": "Layers/json-files/AMS-USDA-Directories-FarmersMarkets.json",
       "isChecked": true
     },
     {
       "id": "farmer_store",
       "layerName": "Farmers with Stores",
-      "fileName": "AMS-USDA-Directories-Farms.json",
-      "path": "Layers/json-files/AMS-USDA-Directories-Farms.json",
       "isChecked": true
     },
     {
       "id": "foodnet",
       "layerName": "User Contributions",
-      "fileName": "foodnet.json",
-      "path": "Layers/json-files/foodnet.json",
       "isChecked": true
     }
   ],
