@@ -130,7 +130,7 @@ function showLayer(layer) {
   } else {
     currentLayer = layer;
 
-    let layerInfo = L.geoJSON.ajax("assets/data-files/" + layer + ".json", {
+    let layerInfo = L.geoJSON.ajax("https://demo.odin.cse.buffalo.edu/foodnet/" + layer + ".json", {
       pointToLayer: function (feature, latlng) {
         return returnMarker(feature, latlng, layer);
       },
@@ -423,7 +423,7 @@ function reloadMap() {
       });
 
     });
-  fetch("assets/index-files/index.json")
+  fetch("https://demo.odin.cse.buffalo.edu/foodnet/index/index.json")
      .then((response) => response.json())
      .then((keywords) => {
         searchKeywords = {}
@@ -486,7 +486,7 @@ function updateSearchFilter() {
   if(searchKeywords[target]){
     var id = searchKeywords[target]
     console.log("Updated search filter to "+target+" -> "+id)
-    fetch("assets/index-files/"+id+".json")
+    fetch("https://demo.odin.cse.buffalo.edu/foodnet/index/"+id+".json")
       .then((resp) => resp.json())
       .then((elements) => {
         console.log("filtering down to "+elements)
